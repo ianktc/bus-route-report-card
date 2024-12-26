@@ -1,9 +1,11 @@
 from google.transit import gtfs_realtime_pb2
+from pathlib import Path
 import requests
 import pandas as pd
+import sys
 
-output = '../data_out'
-target_route = 510
+backend_dir = Path(__file__).resolve().parents[1]
+output = Path(backend_dir, 'data_out')
 
 def parse_feed_and_filter_by_route(feed):
     matching_entities = []
@@ -22,7 +24,7 @@ def parse_feed_and_filter_by_route(feed):
                 })
     return matching_entities
 
-def main():
+def main(target_route):
 
     feed = gtfs_realtime_pb2.FeedMessage()
     response = requests.get('https://bustime.ttc.ca/gtfsrt/vehicles')
@@ -50,8 +52,14 @@ def main():
 
     # Save to csv
     result.reset_index(drop = True, inplace = True)
-    result.to_csv(output + '/' + str(target_route) + "-rt.csv")
+    result.to_csv(Path(output, str(target_route) + "-rt.csv"))
 
 if __name__=="__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python generate_csv.py <target_route>")
+        target_route = 510
+    else:
+        target_route = sys.argv[1]
+    
+    main(target_route)
     

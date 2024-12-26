@@ -8,8 +8,8 @@ const RunNotebook = () => {
     const runNotebook = async () => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/run-notebook');
-            setResult(response.data);
+            // const response = await axios.post('http://localhost:5000/run-notebook');
+            // setResult(response.data);
             console.log('Executed notebook')
         } catch (error) {
             console.error('Error running notebook:', error);

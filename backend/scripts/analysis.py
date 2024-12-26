@@ -1,10 +1,12 @@
 import pandas as pd
 from geopy.distance import geodesic
+from pathlib import Path
+import sys
 
-route_short_name = '510'
-input = '../data_in'
-output = '../data_out'
-static_data = 'mdb-2253'
+backend_dir = Path(__file__).resolve().parents[1]
+input = Path(backend_dir,'data_in')
+output = Path(backend_dir, 'data_out')
+data_set = 'mdb-2253'
 
 def find_distance_to_stop(group):
     group['distance_to_stop'] = group.apply(
@@ -16,18 +18,18 @@ def find_distance_to_stop(group):
     )
     return group
 
-def main():
+def main(target_route):
 
-    rt_trips = pd.read_csv(output + '/' + route_short_name + '-rt.csv', sep=',')
-    static_trips = pd.read_csv(output + '/' + route_short_name + '-static.csv')
-    stops = pd.read_csv(input + '/' + static_data + '/stops.txt', sep=',')
-    stop_times = pd.read_csv(input + '/' + static_data + '/stop_times.txt', sep=',')
+    rt_trips = pd.read_csv(Path(output, str(target_route) + '-rt.csv'), sep=',')
+    static_trips = pd.read_csv(Path(output, str(target_route) + '-static.csv'), sep=',')
+    stops = pd.read_csv(Path(input, data_set + '/stops.txt'), sep=',')
+    stop_times = pd.read_csv(Path(input, data_set + '/stop_times.txt'), sep=',')
 
     # Merge rt info with static info
     rt_static_merged_trips = rt_trips.merge(static_trips, on='trip_id', how='outer')
     rt_static_merged_trips = rt_static_merged_trips.drop(['Unnamed: 0_x', 'Unnamed: 0_y', 'route_id'], axis=1).dropna()
     rt_static_merged_trips.reset_index(drop = True, inplace = True)
-    rt_static_merged_trips.to_csv(output + '/' + route_short_name + '-rt-static.csv')
+    rt_static_merged_trips.to_csv(Path(output, str(target_route) + '-rt-static.csv'))
 
     # Merge stop_times with stops
     stop_info = stop_times.merge(stops, on="stop_id")
@@ -78,7 +80,13 @@ def main():
 
     # Save to csv
     result.reset_index(drop = True, inplace = True)
-    result.to_csv(output + '/' + 'analysis-result.csv')
+    result.to_csv(Path(output, 'analysis-result.csv'))
 
 if __name__=="__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python generate_csv.py <target_route>")
+        target_route = 510
+    else:
+        target_route = sys.argv[1]
+    
+    main(target_route)

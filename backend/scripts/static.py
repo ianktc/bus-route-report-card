@@ -1,16 +1,16 @@
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
+import sys
 
 # globals
-input = '../data_in'
-output = '../data_out'
+backend_dir = Path(__file__).resolve().parents[1]
+input = Path(backend_dir,'data_in')
+output = Path(backend_dir, 'data_out')
 data_set = 'mdb-2253'
-target_route = 510
 
 def clean_data_out():
-    directory = Path(output)
-    for file_path in directory.iterdir():
+    for file_path in output.iterdir():
         if file_path.is_file():  
             file_path.unlink() 
 
@@ -26,19 +26,19 @@ def normalize_time(time_str):
         print(f"Invalid time format: {time_str}")
         return None
 
-def main():
+def main(target_route):
     
     clean_data_out()
 
     # Read txt files
-    routes = pd.read_csv(input + '/' + data_set + '/routes.txt', sep=',')
-    trips = pd.read_csv(input + '/' + data_set + '/trips.txt', sep=',')
-    stop_times = pd.read_csv(input + '/' + data_set + '/stop_times.txt', sep=',')
-    stops = pd.read_csv(input + '/' + data_set + '/stops.txt', sep=',')
+    routes = pd.read_csv(Path(input, data_set, 'routes.txt').resolve(), sep=',')
+    trips = pd.read_csv(Path(input, data_set, 'trips.txt'), sep=',')
+    stop_times = pd.read_csv(Path(input, data_set, 'stop_times.txt'), sep=',')
+    stops = pd.read_csv(Path(input, data_set, 'stops.txt'), sep=',')
 
     # Filter for particular route (eg. 510)
     route_id = routes.loc[routes['route_short_name'] == target_route, 'route_id']
-
+    
     # Get all trip_ids with route_id = target route
     route_trips = trips.loc[trips['route_id'] == route_id.iloc[0], 'trip_id']
 
@@ -68,7 +68,13 @@ def main():
 
     # Save to csv
     result.reset_index(drop = True, inplace = True)
-    result.to_csv(output + '/' + str(target_route) + "-static.csv")
+    result.to_csv(Path(output, str(target_route) + "-static.csv"))
 
 if __name__=="__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python generate_csv.py <target_route>")
+        target_route = 510
+    else:
+        target_route = sys.argv[1]
+    
+    main(target_route)
