@@ -19,6 +19,7 @@ def run_notebook():
         ep.preprocess(notebook)
         # Optionally return specific results (e.g., cell outputs)
         outputs = [cell['outputs'] for cell in notebook.cells if 'outputs' in cell]
+        print('notebook executed')
         return jsonify({"status": "success", "outputs": outputs})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

@@ -1,1 +1,1 @@
-FLASK_APP=script-run.py
+FLASK_APP=flaskApp.py
