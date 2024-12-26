@@ -10,7 +10,8 @@
 
 # production
 /build
-/backend/data_out
+/backend/data_out/*
+!/backend/data_out/.gitkeep
 
 # misc
 .DS_Store
