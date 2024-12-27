@@ -8,7 +8,6 @@ CORS(app)  # Enables CORS for all routes
 
 data_out = Path(Path(__file__).resolve().parent, 'data_out')
 
-# Make this take any filepath in the future to serve all 3 csv files
 def get_csv(csv_name):
     file_path = str(Path(data_out, csv_name))
     try:
@@ -27,9 +26,21 @@ def run_script():
 
         # Pass arguments to the Python script
         subprocess.run(["python", "scripts/static.py", target_route], check=True)
-        csv_name = '510-static.csv'
+        subprocess.run(["python", "scripts/realtime.py", target_route], check=True)
+        subprocess.run(["python", "scripts/analysis.py", target_route], check=True)
+        csv_name = 'analysis-result.csv'
         return get_csv(csv_name)
-        # return jsonify({"status": "success", "message": "Script executed successfully."})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/get-routes', methods=['GET'])
+def get_routes():
+    try:
+        # Pass arguments to the Python script
+        subprocess.run(["python", "scripts/getRoutes.py"], check=True)
+        csv_name = 'bus-routes.csv'
+        return get_csv(csv_name)
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

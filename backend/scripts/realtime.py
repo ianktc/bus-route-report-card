@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import sys
 
+# globals
 backend_dir = Path(__file__).resolve().parents[1]
 output = Path(backend_dir, 'data_out')
 

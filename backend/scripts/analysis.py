@@ -3,6 +3,7 @@ from geopy.distance import geodesic
 from pathlib import Path
 import sys
 
+# globals
 backend_dir = Path(__file__).resolve().parents[1]
 input = Path(backend_dir,'data_in')
 output = Path(backend_dir, 'data_out')
@@ -40,11 +41,9 @@ def main(target_route):
     merged = merged[["trip_id", "now", "arrival_time_trip", "departure_time_trip", "stop_sequence_trip", "stop_sequence_rt",
                     "stop_lat_trip", "stop_lon_trip", "stop_name_trip", "vehicle_latitude", "vehicle_longitude"]]
 
-    # Filter rows where stop_sequence is one less or one more
+    # Filter rows where rt stop_sequence is within 5 of the intended stop_sequence
     filtered = merged[
-        (merged["stop_sequence_rt"] == merged["stop_sequence_trip"] - 1) |
-        (merged["stop_sequence_rt"] == merged["stop_sequence_trip"] + 1) |
-        (merged["stop_sequence_rt"] == merged["stop_sequence_trip"])
+        ((merged["stop_sequence_rt"] - merged["stop_sequence_trip"]).abs() <= 7)
     ]
     filtered_data = filtered[["trip_id", "stop_sequence_trip", "now", "arrival_time_trip", "departure_time_trip", "stop_name_trip", "stop_lat_trip", "stop_lon_trip", "vehicle_latitude", "vehicle_longitude"]]
 

@@ -1,22 +1,22 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import Papa from 'papaparse'
+import SelectComponent from './SelectComponent';
 
 function RunNotebook() {
     const [csvData, setCsvData] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    console.log("before")
-    const fetchCsv = async () => {
+    const fetchCsv = async (selectedOption) => {
         try {
             
-            console.log("Making a post request")
-            setLoading(false);
+            setLoading(true);
+            console.log("Making a post request with target route ", selectedOption)
             const response = await axios({
                 method: 'post',
                 url: 'http://localhost:5000/run-script',
                 data: {
-                  target_route: '510'
+                  target_route: selectedOption.route_id
                 }
             });
 
@@ -44,9 +44,8 @@ function RunNotebook() {
 
     return (
         <div>
-            <button onClick={fetchCsv} style={{ marginBottom: '20px' }}>
-                {loading ? 'Loading...' : 'Fetch CSV Data'}
-            </button>
+            <h4>{loading ? 'Loading...' : 'Fetch CSV Data'}</h4> 
+            <SelectComponent onChange = {fetchCsv} />
             {csvData.length > 0 ? (
                 <table
                     style={{
@@ -55,45 +54,45 @@ function RunNotebook() {
                         marginTop: '20px',
                     }}
                 >
-                    <thead>
-                        <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
-                            {Object.keys(csvData[0]).map((key) => (
-                                <th
-                                    key={key}
+                <thead>
+                    <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
+                        {Object.keys(csvData[0]).map((key) => (
+                            <th
+                                key={key}
+                                style={{
+                                    border: '1px solid #ddd',
+                                    padding: '8px',
+                                }}
+                            >
+                                {key}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {csvData.map((row, index) => (
+                        <tr
+                            key={index}
+                            style={{
+                                border: '1px solid #ddd',
+                                padding: '8px',
+                                backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
+                            }}
+                        >
+                            {Object.values(row).map((value, idx) => (
+                                <td
+                                    key={idx}
                                     style={{
                                         border: '1px solid #ddd',
                                         padding: '8px',
                                     }}
                                 >
-                                    {key}
-                                </th>
+                                    {value}
+                                </td>
                             ))}
                         </tr>
-                    </thead>
-                    <tbody>
-                        {csvData.map((row, index) => (
-                            <tr
-                                key={index}
-                                style={{
-                                    border: '1px solid #ddd',
-                                    padding: '8px',
-                                    backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
-                                }}
-                            >
-                                {Object.values(row).map((value, idx) => (
-                                    <td
-                                        key={idx}
-                                        style={{
-                                            border: '1px solid #ddd',
-                                            padding: '8px',
-                                        }}
-                                    >
-                                        {value}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
+                    ))}
+                </tbody>
                 </table>
             ) : (
                 !loading && <p>No data to display. Click the button to fetch CSV data.</p>
