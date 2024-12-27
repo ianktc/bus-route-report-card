@@ -21,6 +21,7 @@ def find_distance_to_stop(group):
 
 def main(target_route):
 
+    # Read csv 
     rt_trips = pd.read_csv(Path(output, str(target_route) + '-rt.csv'), sep=',')
     static_trips = pd.read_csv(Path(output, str(target_route) + '-static.csv'), sep=',')
     stops = pd.read_csv(Path(input, data_set + '/stops.txt'), sep=',')
@@ -57,11 +58,18 @@ def main(target_route):
         calculated_distance.groupby('trip_id')['distance_to_stop']
         .transform(lambda x: calculated_distance.loc[x.idxmin(), 'stop_sequence_trip'])
     )
+
+    # Save the realtime stop name of only the closest stop
+    calculated_distance['stop_name_trip'] = (
+        calculated_distance.groupby('trip_id')
+            .apply(lambda group: group.loc[group['stop_sequence_trip'] == group['closest_stop_sequence'], 'stop_name_trip'], include_groups=False)
+            .reset_index(level=0, drop=True)
+    )
     # calculated_distance.to_csv(output + '/' + 'calculated_distance.csv')
 
-    rt_static_merged_trips_concise = rt_static_merged_trips[['trip_id', 'stop_sequence']]
-    calculated_distance_concise = calculated_distance[['trip_id', 'closest_stop_sequence']]
-    comparison = (calculated_distance_concise.merge(rt_static_merged_trips_concise, on='trip_id', how='right'))[['trip_id', 'stop_sequence', 'closest_stop_sequence']]
+    rt_static_merged_trips_concise = rt_static_merged_trips[['trip_id', 'stop_sequence', 'stop_name']]
+    calculated_distance_concise = calculated_distance[['trip_id', 'closest_stop_sequence', 'stop_name_trip']].dropna()
+    comparison = (calculated_distance_concise.merge(rt_static_merged_trips_concise, on='trip_id', how='outer'))[['trip_id', 'stop_sequence', 'stop_name', 'closest_stop_sequence', 'stop_name_trip']]
 
     # Evaluate whether bus is on/ahead/behind schedule
     result = comparison.drop_duplicates()
@@ -75,6 +83,13 @@ def main(target_route):
             'behind',
         axis=1
     )
+
+    # Clean up analysis-result
+    temp = temp.rename({'closest_stop_sequence': 'realtime_stop_sequence',
+                    'stop_name_trip': 'realtime_stop_name', 
+                    'stop_sequence': 'static_stop_sequence', 
+                    'stop_name': 'static_stop_name'}, axis=1)
+    temp['static_stop_sequence'] = temp['static_stop_sequence'].astype(int)
     result = temp.copy()
 
     # Save to csv

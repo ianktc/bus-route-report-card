@@ -45,14 +45,10 @@ function SelectComponent({ onChange }){
         }
     }, [])
 
-    // const handleSelect = (selectedOption) => {
-    //     console.log("handleChange equals", selectedOption)
-    // };
-
     const loadOptions = (searchValue, callback) => {
         setTimeout(() => {
             const filteredOptions = busRoutes.filter((busRoute) => 
-                busRoute.route_id.startsWith(searchValue)
+                (busRoute.route_id + busRoute.route_long_name).toLowerCase().includes(searchValue.toLowerCase())
             );
             console.log('loadOptions equals ', searchValue, filteredOptions)
             callback(filteredOptions)
@@ -62,7 +58,7 @@ function SelectComponent({ onChange }){
     return <AsyncSelect 
         loadOptions = {loadOptions} 
         onChange = {onChange} 
-        getOptionLabel = {(option) => option.route_id}
+        getOptionLabel = {(option) => (option.route_id + ' - ' + option.route_long_name)}
         getOptionValue = {(option) => option.route_id}    
     />
 }

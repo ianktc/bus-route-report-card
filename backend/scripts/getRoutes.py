@@ -9,7 +9,7 @@ data_set = 'mdb-2253'
 
 def main():
     routes = pd.read_csv(Path(input, data_set, 'routes.txt'), sep=',')
-    route_id = routes['route_id']
+    route_id = routes[['route_id', 'route_long_name']]
     route_id.to_csv(Path(output, 'bus-routes.csv'), index=False)
 
 if __name__=="__main__":
