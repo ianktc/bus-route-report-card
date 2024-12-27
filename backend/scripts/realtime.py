@@ -57,7 +57,7 @@ def main(target_route):
 if __name__=="__main__":
     if len(sys.argv) < 2:
         print("Usage: python generate_csv.py <target_route>")
-        target_route = 510
+        target_route = '510'
     else:
         target_route = sys.argv[1]
     

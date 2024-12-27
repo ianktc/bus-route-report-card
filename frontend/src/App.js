@@ -1,17 +1,13 @@
 import React from "react";
-import CSVReader from "./CSVReader";
 import RunNotebook from "./RunNotebook"
 
 function App() {
+  console.log("gtfs-react-app started!")
   return (
-    <App>
-      {/* <div style={{ textAlign: "center", padding: "20px" }}>
-        <CSVReader />
-      </div> */}
-      <div style={{ textAlign: "center", padding: "20px" }}>
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }}>
+        <h1>GTFS Bus Report Card</h1>
         <RunNotebook />
-      </div>
-    </App>
+    </div>
   );
 }
 

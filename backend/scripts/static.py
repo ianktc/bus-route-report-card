@@ -37,8 +37,8 @@ def main(target_route):
     stops = pd.read_csv(Path(input, data_set, 'stops.txt'), sep=',')
 
     # Filter for particular route (eg. 510)
-    route_id = routes.loc[routes['route_short_name'] == target_route, 'route_id']
-    
+    route_id = routes.loc[routes['route_short_name'] == int(target_route), 'route_id']
+
     # Get all trip_ids with route_id = target route
     route_trips = trips.loc[trips['route_id'] == route_id.iloc[0], 'trip_id']
 
@@ -73,8 +73,9 @@ def main(target_route):
 if __name__=="__main__":
     if len(sys.argv) < 2:
         print("Usage: python generate_csv.py <target_route>")
-        target_route = 510
+        target_route = '510'
     else:
-        target_route = sys.argv[1]
+        print("target route found %s of type %s"%(sys.argv[1], type(sys.argv[1])))
+        target_route = str(sys.argv[1])
     
     main(target_route)
