@@ -1,14 +1,92 @@
-import React from "react";
+import React, { useState } from 'react'
 import RunNotebook from "./RunNotebook"
+import './App.css'
 
 function App() {
   console.log("gtfs-react-app started!")
+
+  // State to store data passed from RunNotebook
+  const [csvData, setCsvData] = useState([]);
+
+  // Callback to update the selected route in App
+  const handleAnalysis = (result) => {
+    setCsvData(result);
+  };
+
   return (
     <>
       <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }}>
         <h1>GTFS-rt Bus Report Card</h1>
         <h2>Select Bus Route</h2>
-        <RunNotebook/>
+        <RunNotebook onCsvUpdate={handleAnalysis} />
+        <h2>On Time Performance</h2>
+        {csvData.length > 0 ? (
+            <table
+                style={{
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    marginTop: '20px',
+                }}
+            >
+            <thead>
+                <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
+                    {Object.keys(csvData[0]).map((key) => (
+                        <th
+                            key={key}
+                            style={{
+                                border: '1px solid #ddd',
+                                padding: '8px',
+                            }}
+                        >
+                            {key}
+                        </th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody>
+                {csvData.map((row, index) => (
+                    <tr
+                        key={index}
+                        style={{
+                            border: '1px solid #ddd',
+                            padding: '8px',
+                            backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
+                        }}
+                    >
+                        {Object.values(row).map((value, idx) => (
+                            <td
+                                key={idx}
+                                style={{
+                                    border: '1px solid #ddd',
+                                    padding: '8px',
+                                }}
+                            >
+                                {value}
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+            </table>
+        ) : (
+          <p>No data to display. Click the button to fetch CSV data.</p>
+        )}
+        <h3>Methodology</h3>
+        <p>
+          The method used to evaluate On Time Performance involves examining all the static and 
+          realtime trips of a given route, and comparing the realtime locations (stops) with the 
+          expected scheduled locations (stops).
+
+        </p>
+        <h2>Bus Bunching</h2>
+        <h3>Methodology</h3>
+        <p>Coming soon</p>
+        <h2>Service Guarantee</h2>
+        <h3>Methodology</h3>
+        <p>Coming soon</p>
+        <h2>Vehicle Capacity</h2>
+        <h3>Methodology</h3>
+        <p>Coming soon</p>
       </div>
     </>
 
