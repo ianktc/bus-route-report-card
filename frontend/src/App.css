@@ -32,6 +32,14 @@ body {
   color: #61dafb;
 }
 
+/* height of the container */
+.leaflet-container {
+  height: 80vh;
+  width: 80%;
+  border-radius: 2rem;
+  margin: auto;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

@@ -25,12 +25,9 @@ def run_script():
         print("target route is " + target_route)
 
         # Pass arguments to the Python script
-        subprocess.run(["python", "scripts/static.py", target_route], check=True)
-        subprocess.run(["python", "scripts/realtime.py", target_route], check=True)
-        subprocess.run(["python", "scripts/analysis.py", target_route], check=True)
-        csv_name = 'analysis-result.csv'
-        return get_csv(csv_name)
-
+        subprocess.run(["python", "scripts/unifiedRouteAnalysis.py", target_route], check=True)
+        return jsonify({"status": "success"})
+    
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -40,6 +37,16 @@ def get_routes():
         # Pass arguments to the Python script
         subprocess.run(["python", "scripts/getRoutes.py"], check=True)
         csv_name = 'bus-routes.csv'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/get-otp-analysis', methods=['GET'])
+def get_otp_analysis():
+    try:
+        # Get otp analysis results
+        csv_name = 'otp-analysis-result.csv'
         return get_csv(csv_name)
 
     except Exception as e:

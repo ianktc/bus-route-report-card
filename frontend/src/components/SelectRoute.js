@@ -3,7 +3,7 @@ import AsyncSelect from 'react-select/async';
 import axios from 'axios'
 import Papa from 'papaparse'
 
-function SelectComponent({ onChange }){
+function SelectRouteComponent({ onChange }){
     const [busRoutesGotten, getBusRoutes] = useState(false)
     const [busRoutes, setBusRoutes] = useState([]);
 
@@ -29,13 +29,13 @@ function SelectComponent({ onChange }){
                         },
                     });
                 } catch (error) {
-                    console.error("Error parsing the CSV file:", error);
+                    console.error("Error parsing the routes csv file:", error);
                 } finally {
 
                 }
 
             } catch (error) {
-                console.error('Error fetching the CSV:', error.response);
+                console.error('Error fetching the csv file:', error.response);
             }
         }
 
@@ -63,4 +63,4 @@ function SelectComponent({ onChange }){
     />
 }
 
-export default SelectComponent;
+export default SelectRouteComponent;
