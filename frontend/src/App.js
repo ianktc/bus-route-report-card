@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import RunScriptComponent from './components/RunScript';
 import DisplayMapComponent from './components/DisplayMap';
 import './App.css'
-import GetAnalysisResultComponent from './components/GetAnalysisResult';
+import GetOtpAnalysisResultComponent from './components/GetOtpAnalysis';
 
 function App() {
     console.log("gtfs-react-app started!")
@@ -10,15 +10,49 @@ function App() {
     // State to store data passed from RunNotebook
     const [analysisDataReceived, setAnalysisDataReceived] = useState(false);
     const [otpAnalysisData, setOtpAnalysisData] = useState([]);
+    const [directionOneCsvData, setDirectionOneCsvData] = useState([]);
+    const [directionTwoCsvData, setDirectionTwoCsvData] = useState([]);
 
     // Callback to update the selected route in App
     const handleScriptExecutionStatus = (status) => {
         setAnalysisDataReceived(status);
+        if (status) {
+            // Reset states when script is executed again
+            setOtpAnalysisData([]);
+            setDirectionOneCsvData([]);
+            setDirectionTwoCsvData([]);
+        }
     };
 
-    const handleCsvData = (csvData) => {
+    const handleOtpCsvData = (csvData) => {
         setOtpAnalysisData(csvData)
     }
+
+    const handleDirectionOneCsvData = (csvData) => {
+        setDirectionOneCsvData(csvData)
+    }
+
+    const handleDirectionTwoCsvData = (csvData) => {
+        setDirectionTwoCsvData(csvData)
+    }
+
+    // useEffect(() => {
+    //     if (analysisDataReceived && !otpAnalysisData) {
+    //         console.log('Triggering first CSV fetch');
+    //     }
+    // }, [analysisDataReceived, otpAnalysisData]);
+    
+    // useEffect(() => {
+    //     if (otpAnalysisData && !directionOneCsvData) {
+    //         console.log('Triggering second CSV fetch');
+    //     }
+    // }, [otpAnalysisData, directionOneCsvData]);
+    
+    // useEffect(() => {
+    //     if (directionOneCsvData && !directionTwoCsvData) {
+    //         console.log('Triggering third CSV fetch');
+    //     }
+    // }, [directionOneCsvData, directionTwoCsvData]);
 
     return (
         <>
@@ -26,14 +60,36 @@ function App() {
             <h1>GTFS-rt Bus Report Card</h1>
             <h2>Select Bus Route</h2>
             <RunScriptComponent onScriptExecution={handleScriptExecutionStatus} />
-            {analysisDataReceived && <GetAnalysisResultComponent onCsvUpdate={handleCsvData} />}
+            {analysisDataReceived && otpAnalysisData.length === 0 && (
+                <GetOtpAnalysisResultComponent
+                    csv='get-otp-analysis'
+                    triggerFetch={true}
+                    onCsvUpdate={handleOtpCsvData}
+                />
+            )}
+            {otpAnalysisData && directionOneCsvData.length === 0 && (
+                <GetOtpAnalysisResultComponent
+                    csv='get-first-direction-buses'
+                    triggerFetch={true}
+                    onCsvUpdate={handleDirectionOneCsvData}
+                />
+            )}
+            {directionOneCsvData && directionTwoCsvData.length === 0 && (
+                <GetOtpAnalysisResultComponent
+                    csv='get-second-direction-buses'
+                    triggerFetch={true}
+                    onCsvUpdate={handleDirectionTwoCsvData}
+                />
+            )}
             <h2>On Time Performance</h2>
             {otpAnalysisData.length > 0 ? (
                 <table
                     style={{
                         borderCollapse: 'collapse',
-                        width: '100%',
-                        marginTop: '20px',
+                        height: '80vh',
+                        width: '80%',
+                        margin: 'auto',
+                        borderRadius: '2rem',
                     }}
                 >
                 <thead>
@@ -86,7 +142,9 @@ function App() {
             expected scheduled locations (stops).
             </p>
             <h2>Bus Bunching</h2>
-            <DisplayMapComponent/>
+            {directionOneCsvData && directionTwoCsvData && (
+                <DisplayMapComponent triggerFetch={true} directionOneCsv={directionOneCsvData} directionTwoCsv={directionTwoCsvData}/>                
+            )}
             <h3>Methodology</h3>
             <p>Coming soon</p>
             <h2>Service Guarantee</h2>
@@ -99,6 +157,7 @@ function App() {
         </>
 
     );
+
 }
 
 export default App;

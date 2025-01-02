@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import axios from 'axios'
 import Papa from 'papaparse'
 
-function GetAnalysisResultComponent({ onCsvUpdate }) {
+function GetOtpAnalysisResultComponent({ csv, triggerFetch, onCsvUpdate }) {
 
     const fetchCsv = async () => {
         try {
@@ -10,7 +10,7 @@ function GetAnalysisResultComponent({ onCsvUpdate }) {
             console.log("Trying to get the otp analysis result")
             const response = await axios({
                 method: 'get',
-                url: 'http://localhost:5000/get-otp-analysis',
+                url: 'http://localhost:5000/' + csv,
             });
 
             console.log("response is: \n" + response.data)
@@ -27,24 +27,23 @@ function GetAnalysisResultComponent({ onCsvUpdate }) {
                     },
                 });
             } catch (error) {
-                console.error("Error parsing the otp analysis csv file:", error);
+                console.error("Error parsing the analysis csv file:", error);
             } finally {
-                // setLoading(false);
+
             }
 
         } catch (error) {
-            console.error('Error fetching the otp analysis csv file:', error.response);
-            // setLoading(false);
+            console.error('Error fetching the analysis csv file:', error.response);
         }
     };
 
     // Trigger fetchCsv whenever `triggerFetch` changes to `true`
     useEffect(() => {
-        // if (triggerFetch) {
+        if (triggerFetch) {
             fetchCsv();
-        // }
-    },[]);
+        }
+    },[fetchCsv]);
 
 }
 
-export default GetAnalysisResultComponent;
+export default GetOtpAnalysisResultComponent;

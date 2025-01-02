@@ -52,5 +52,25 @@ def get_otp_analysis():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/get-first-direction-buses', methods=['GET'])
+def get_first_direction_buses():
+    try:
+        # Get otp analysis results
+        csv_name = 'direction_0_coords.csv'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/get-second-direction-buses', methods=['GET'])
+def get_second_direction_buses():
+    try:
+        # Get otp analysis results
+        csv_name = 'direction_1_coords.csv'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

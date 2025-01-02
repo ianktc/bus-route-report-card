@@ -204,7 +204,7 @@ def main(target_route):
 
     # Calculate distance to each stop
     calculated_distance = filtered_data.groupby("trip_id").apply(find_distance_to_stop, include_groups=False).reset_index(drop=False)
-    calculated_distance = calculated_distance.drop(columns=['level_1'])
+    # calculated_distance = calculated_distance.drop(columns=['level_1'])
 
     # Identify which stop is the closest (by stop_sequence)
     calculated_distance['closest_stop_sequence'] = (
