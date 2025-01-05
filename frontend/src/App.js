@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import RunScriptComponent from './components/RunScript';
 import DisplayMapComponent from './components/DisplayMap';
 import './App.css'
-import GetOtpAnalysisResultComponent from './components/GetOtpAnalysis';
+import GetCsvResultComponent from './components/GetAnalysisCsv';
+import GetTxtResultComponent from './components/GetAnalysisTxt';
 
 import behind1 from './assets/behind1.png';
 import behind2 from './assets/behind2.png';
@@ -16,38 +17,78 @@ import bunching1 from './assets/bunching1.png';
 import bunching2 from './assets/bunching2.png';
 import bunching3 from './assets/bunching3.png';
 import bunching4 from './assets/bunching4.png';
+import serviceGuarantee from './assets/serviceGuarantee.png';
 
 function App() {
     console.log("gtfs-react-app started!")
 
     // State to store data passed from RunNotebook
-    const [analysisDataReceived, setAnalysisDataReceived] = useState(false);
+    const [scriptSuccessfullyExecuted, setScriptSuccessfullyExecuted] = useState(false);
     const [otpAnalysisData, setOtpAnalysisData] = useState([]);
+    const [bbAnalysisData, setBbAnalysisData] = useState([]);
+    const [voAnalysisData, setVoAnalysisData] = useState([]);
+    const [sgAnalysisData, setSgAnalysisData] = useState([]);
     const [directionOneCsvData, setDirectionOneCsvData] = useState([]);
     const [directionTwoCsvData, setDirectionTwoCsvData] = useState([]);
 
-    // Callback to update the selected route in App
+    // State to track loading/fetching status
+    const [loadingStatus, setLoadingStatus] = useState({
+        otp: false,
+        bb: false,
+        vo: false,
+        sg: false,
+        directionOne: false,
+        directionTwo: false,
+    });
+
+    // Reset states and flags when script is executed again
     const handleScriptExecutionStatus = (status) => {
-        setAnalysisDataReceived(status);
+        setScriptSuccessfullyExecuted(status);
         if (status) {
-            // Reset states when script is executed again
             setOtpAnalysisData([]);
+            setBbAnalysisData([]);
+            setVoAnalysisData([]);
+            setSgAnalysisData([]);
             setDirectionOneCsvData([]);
             setDirectionTwoCsvData([]);
+            setLoadingStatus({
+                otp: false,
+                bb: false,
+                vo: false,
+                sg: false,
+                directionOne: false,
+                directionTwo: false,
+            });
         }
     };
 
-    const handleOtpCsvData = (csvData) => {
-        setOtpAnalysisData(csvData)
-    }
+    // Generic handler for CSV updates
+    const handleCsvUpdate = (type, csvData) => {
+        switch (type) {
+            case 'otp':
+                setOtpAnalysisData(csvData);
+                break;
+            case 'bb':
+                setBbAnalysisData(csvData);
+                break;
+            case 'vo':
+                setVoAnalysisData(csvData);
+                break;
+            case 'sg':
+                setSgAnalysisData(csvData);
+                break;
+            case 'directionOne':
+                setDirectionOneCsvData(csvData);
+                break;
+            case 'directionTwo':
+                setDirectionTwoCsvData(csvData);
+                break;
+            default:
+                break;
+        }
+        setLoadingStatus((prev) => ({ ...prev, [type]: true }));
+    };
 
-    const handleDirectionOneCsvData = (csvData) => {
-        setDirectionOneCsvData(csvData)
-    }
-
-    const handleDirectionTwoCsvData = (csvData) => {
-        setDirectionTwoCsvData(csvData)
-    }
 
     // useEffect(() => {
     //     if (analysisDataReceived && !otpAnalysisData) {
@@ -74,34 +115,68 @@ function App() {
             <h2>Select Bus Route</h2>
             <h3>Some suggested routes</h3>
             <ul>
-                <li>510 Spadina</li>
-                <li>21 Brimley</li>
-                <li>501 Queen</li>
-                <li>504 King</li>
-                <li>96 Wilson</li>
+                <li>510 Spadina - Bus (temporary)</li>
+                <li>501 Queen - Bus (temporary) and Streetcar</li>
+                <li>504 King - Streetcar</li>
+                <li>505 Dundas - Streetcar</li>
+                <li>21 Brimley - Bus</li>
+                <li>96 Wilson - Bus</li>
             </ul>
             <RunScriptComponent onScriptExecution={handleScriptExecutionStatus} />
-            {analysisDataReceived && otpAnalysisData.length === 0 && (
-                <GetOtpAnalysisResultComponent
-                    csv='get-otp-analysis'
+            {/* OTP Analysis */}
+            {scriptSuccessfullyExecuted && !loadingStatus.otp && (
+            <GetCsvResultComponent
+                csv="get-otp-analysis"
+                triggerFetch={true}
+                onCsvUpdate={(data) => handleCsvUpdate('otp', data)}
+            />
+            )}
+
+            {/* BB Analysis */}
+            {scriptSuccessfullyExecuted && otpAnalysisData.length > 0 && !loadingStatus.bb && (
+                <GetTxtResultComponent
+                    txt="get-bb-analysis"
                     triggerFetch={true}
-                    onCsvUpdate={handleOtpCsvData}
+                    onCsvUpdate={(data) => handleCsvUpdate('bb', data)}
                 />
             )}
-            {otpAnalysisData && directionOneCsvData.length === 0 && (
-                <GetOtpAnalysisResultComponent
-                    csv='get-first-direction-buses'
+
+            {/* VO Analysis */}
+            {scriptSuccessfullyExecuted && bbAnalysisData.length > 0 && !loadingStatus.vo && (
+                <GetTxtResultComponent
+                    txt="get-vo-analysis"
                     triggerFetch={true}
-                    onCsvUpdate={handleDirectionOneCsvData}
+                    onCsvUpdate={(data) => handleCsvUpdate('vo', data)}
                 />
             )}
-            {directionOneCsvData && directionTwoCsvData.length === 0 && (
-                <GetOtpAnalysisResultComponent
-                    csv='get-second-direction-buses'
+
+            {/* SG Analysis */}
+            {scriptSuccessfullyExecuted && voAnalysisData.length > 0 && !loadingStatus.sg && (
+                <GetTxtResultComponent
+                    txt="get-sg-analysis"
                     triggerFetch={true}
-                    onCsvUpdate={handleDirectionTwoCsvData}
+                    onCsvUpdate={(data) => handleCsvUpdate('sg', data)}
                 />
             )}
+
+            {/* Direction One Analysis */}
+            {bbAnalysisData.length > 0 && !loadingStatus.directionOne && (
+                <GetCsvResultComponent
+                    csv="get-first-direction-buses"
+                    triggerFetch={true}
+                    onCsvUpdate={(data) => handleCsvUpdate('directionOne', data)}
+                />
+            )}
+
+            {/* Direction Two Analysis */}
+            {directionOneCsvData.length > 0 && !loadingStatus.directionTwo && (
+                <GetCsvResultComponent
+                    csv="get-second-direction-buses"
+                    triggerFetch={true}
+                    onCsvUpdate={(data) => handleCsvUpdate('directionTwo', data)}
+                />
+            )}
+
             <h2>Motivation</h2>
             <p>Transit routes in Toronto, particularly bus and streetcar routes, are commonly scorned for their performance (or maybe lack thereof).
                 Riders often experience poor schedule adherence, 'ghost buses' that do not show up, or 'bus bunching' when 3 or 4 subsequently 
@@ -267,6 +342,15 @@ function App() {
                 to pick up (if the vehicle is consistently passing the stop without stopping) to name a few.
             </p>
             <h2>Bus Bunching</h2>
+            {bbAnalysisData.length > 0 ? (
+                <div>
+                    {bbAnalysisData.map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
+                </div>
+            ) : (
+                <p>No data to display. Use the route selector to select a route.</p>
+            )}
             {directionOneCsvData && directionTwoCsvData && (
                 <DisplayMapComponent triggerFetch={true} directionOneCsv={directionOneCsvData} directionTwoCsv={directionTwoCsvData}/>                
             )}
@@ -339,15 +423,45 @@ function App() {
                 <img style={{width: '600px'}} src={bunching4} alt=''/>
             </div>
             <h2>Service Guarantee</h2>
+            {sgAnalysisData.length > 0 ? (
+                <div>
+                    {sgAnalysisData.map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
+                </div>
+            ) : (
+                <p>No data to display. Use the route selector to select a route.</p>
+            )}
             <h3>Exposition and Methodology</h3>
             <p>The method used to evaluate service guarantee was simply comparing the number of static trips to the number of realtime trips for a
-                route. 
+                given route.
+                <br/><br/> In the venn diagram below, 
+                <br/>&emsp; - all scheduled static trips are represented by yellow + pink
+                <br/>&emsp; - all realtime trips are represented by blue + pink 
+                <br/>&emsp; - all scheduled static trips that are run in realtime are represented by pink 
+                <br/><br/> And finally,
+                <br/>&emsp; - all static trips that are not run at all are represented in yellow alone
+                <br/>&emsp; - all realtime trips that do not have a corresponding scheduled static trip 
+                (therefore unscheduled/added) are represented in blue alone
 
             </p>
+            <div style={{textAlign:'center'}}>
+                <img style={{width: '350px'}} src={serviceGuarantee} alt=''/>
+            </div>
             <h3>Implementation</h3>
+            <p>All results are simply represented in terms of percentages.</p>
             <h3>Observations and Further Exploration</h3>
             <p>Coming soon</p>
             <h2>Vehicle Capacity</h2>
+            {voAnalysisData.length > 0 ? (
+                <div>
+                    {voAnalysisData.map((line, index) => (
+                        <p key={index}>{line}</p>
+                    ))}
+                </div>
+            ) : (
+                <p>No data to display. Use the route selector to select a route.</p>
+            )}
             <h3>Exposition and Methodology</h3>
             <h3>Implementation</h3>
             <h3>Observations and Further Exploration</h3>

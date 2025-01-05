@@ -7,7 +7,6 @@ from google.transit import gtfs_realtime_pb2
 import requests
 import sys
 
-
 # globals
 backend_dir = Path(__file__).resolve().parents[1]
 input = Path(backend_dir,'data_in')
@@ -248,7 +247,7 @@ def main(target_route):
 
     # Count unique trip_ids
     unique_trip_count = otp_result["trip_id"].nunique()
-    print(unique_trip_count)
+    # print(unique_trip_count)
 
     # Save to csv
     otp_result.reset_index(drop = True, inplace = True)
@@ -280,9 +279,18 @@ def main(target_route):
     # Create kd tree and make range query for bunched buses for each direction
     # print(rt_trips)
     result = realtime_result.groupby('direction_id').apply(lambda group: kd_tree_range_query(group, threshold_degrees), include_groups=False)
-    print(result.loc[0])
-    print(result.loc[1])
-    print("%s bunched bus pairs out of %s total buses running on route %s" %(len(result.loc[0]) + len(result.loc[1]), len(realtime_result), target_route))
+
+    bbResult1 = list(result.loc[0])
+    bbResult2 = list(result.loc[1])
+    bbResult3 = '%s bunched bus pairs out of %s total buses running on route %s' %(len(result.loc[0]) + len(result.loc[1]), len(realtime_result), target_route)
+    resultList = list((bbResult1, bbResult2, bbResult3))
+
+    with open(Path(output, 'bb-analysis-result.txt'), 'w') as file:
+        for item in resultList:
+            # Write string directly
+            file.write(f"{item}\n")
+
+    print(resultList)
 
     # ================================ Vehicle Occupancy Analysis ===============================
 
@@ -315,20 +323,33 @@ def main(target_route):
         else:
             current_time_bucket = WEEKEND_OFF_PEAK
 
-    print('The current expected occupancy is %s while the actual occupancy on route %s is %s' %(current_time_bucket, target_route, average_vehicle_occupancy))
+    voResult = 'The current expected occupancy is %s while the actual occupancy on route %s is %s' %(current_time_bucket, target_route, average_vehicle_occupancy)
+    with open(Path(output, 'vo-analysis-result.txt'), 'w') as file:
+        # Write string directly
+        file.write(f"{voResult}\n")
+
+    print(voResult)
 
     # ================================ Service Guarantee Analysis ===============================
 
-    num_static_trips = len(static_result)
+    num_static_trips = static_result['trip_id'].nunique()
     # print(num_static_trips)
     num_realtime_trips = len(realtime_result)
     # print(num_realtime_trips)
-    num_static_realtime_trips = len(rt_static_merged_trips)
+    num_static_realtime_trips = rt_static_merged_trips['trip_id'].nunique()
     # print(num_static_realtime_trips)
 
-    print('Percentage of static trips represented by scheduled realtime trips is {:.2f}%'.format(num_static_realtime_trips / num_static_trips * 100))
-    print('Additional (unscheduled) realtime trips account for {:.2f}% of the realtime trips'.format((num_realtime_trips - num_static_realtime_trips) / num_realtime_trips * 100))
-    print('Percentage of static trips represented by both scheduled and unscheduled realtime trips is {:.2f}%'.format(num_realtime_trips / num_static_trips * 100))
+    sgResult1 = 'Percentage of static trips represented by scheduled realtime trips is {:.2f}%'.format(num_static_realtime_trips / num_static_trips * 100)
+    sgResult2 = 'Additional (unscheduled) realtime trips account for {:.2f}% of the realtime trips'.format((num_realtime_trips - num_static_realtime_trips) / num_realtime_trips * 100)
+    sgResult3 = 'Percentage of static trips represented by both scheduled and unscheduled realtime trips is {:.2f}%'.format(num_realtime_trips / num_static_trips * 100)
+    resultList = list((sgResult1, sgResult2, sgResult3))
+
+    with open(Path(output, 'sg-analysis-result.txt'), 'w') as file:
+        for item in resultList:
+            # Write string directly
+            file.write(f"{item}\n")
+
+    print(resultList)
 
 if __name__=="__main__":
     if len(sys.argv) < 2:

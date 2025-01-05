@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import axios from 'axios'
 import Papa from 'papaparse'
 
-function GetOtpAnalysisResultComponent({ csv, triggerFetch, onCsvUpdate }) {
+function GetCsvResultComponent({ csv, triggerFetch, onCsvUpdate }) {
 
     const fetchCsv = async () => {
         try {
             
-            console.log("Trying to get the otp analysis result")
+            console.log("Trying to get the analysis result")
             const response = await axios({
                 method: 'get',
                 url: 'http://localhost:5000/' + csv,
@@ -23,6 +23,7 @@ function GetOtpAnalysisResultComponent({ csv, triggerFetch, onCsvUpdate }) {
                         // Update App's state via callback
                         if (onCsvUpdate) {
                             onCsvUpdate(response.data);
+                            // triggerFetch = false;
                         }
                     },
                 });
@@ -46,4 +47,4 @@ function GetOtpAnalysisResultComponent({ csv, triggerFetch, onCsvUpdate }) {
 
 }
 
-export default GetOtpAnalysisResultComponent;
+export default GetCsvResultComponent;

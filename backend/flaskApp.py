@@ -15,6 +15,14 @@ def get_csv(csv_name):
         return send_file(file_path, as_attachment=False, mimetype='text/csv')
     except FileNotFoundError:
         return {"error": "File not found"}, 404
+    
+def get_txt(txt_name):
+    file_path = str(Path(data_out, txt_name))
+    try:
+        print(file_path)
+        return send_file(file_path, as_attachment=False, mimetype='text/csv')
+    except FileNotFoundError:
+        return {"error": "File not found"}, 404
 
 @app.route('/run-script', methods=['POST'])
 def run_script():
@@ -47,6 +55,36 @@ def get_otp_analysis():
     try:
         # Get otp analysis results
         csv_name = 'otp-analysis-result.csv'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/get-bb-analysis', methods=['GET'])
+def get_bb_analysis():
+    try:
+        # Get bb analysis results
+        csv_name = 'bb-analysis-result.txt'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/get-vo-analysis', methods=['GET'])
+def get_vo_analysis():
+    try:
+        # Get vo analysis results
+        csv_name = 'vo-analysis-result.txt'
+        return get_csv(csv_name)
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/get-sg-analysis', methods=['GET'])
+def get_sg_analysis():
+    try:
+        # Get sg analysis results
+        csv_name = 'sg-analysis-result.txt'
         return get_csv(csv_name)
 
     except Exception as e:
