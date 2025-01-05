@@ -125,7 +125,7 @@ function App() {
             <p><strong>"Static trips" and "Scheduled trips"</strong> may be used interchangeably. These refer to the trips that 
                 are scheduled by the agency and are represented by trip_id in the trips.txt GTFS file. 
                 The main GTFS files used were: routes, trips, stops and stop_times. The static GTFS feed was retrieved from 
-                <a href='https://mobilitydatabase.org/feeds?gtfs=true'> MobilityData</a> and is accurate as of December 18th.
+                <a href='https://mobilitydatabase.org/feeds?gtfs=true'> MobilityData</a> and is accurate as of January 1st 2025.
             </p>
             <p><strong>"Realtime trips"</strong>" refer to all the trips that are running for a particular route at a particular time.
                 These realtime trips are parsed from a protobuf feed at <a href='https://bustime.ttc.ca/gtfsrt/vehicles?debug'>
@@ -340,6 +340,10 @@ function App() {
             </div>
             <h2>Service Guarantee</h2>
             <h3>Exposition and Methodology</h3>
+            <p>The method used to evaluate service guarantee was simply comparing the number of static trips to the number of realtime trips for a
+                route. 
+
+            </p>
             <h3>Implementation</h3>
             <h3>Observations and Further Exploration</h3>
             <p>Coming soon</p>

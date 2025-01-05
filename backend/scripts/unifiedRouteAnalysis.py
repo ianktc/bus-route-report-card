@@ -124,7 +124,7 @@ def main(target_route):
     # Filter rows to 1 minute in future
     current_time = pd.Timestamp.now()
     time_diff = (route_stop_info["arrival_datetime"] - current_time)
-    route_stop_info = route_stop_info[(time_diff <= pd.Timedelta(minutes=1)) & (time_diff > pd.Timedelta(0))]
+    route_stop_info = route_stop_info[(time_diff <= pd.Timedelta(minutes=1)) & (time_diff > pd.Timedelta(seconds=-45))]
 
     # Display arrival/departure times and lat/lon coordinates for each stop 
     static_result = route_stop_info[['trip_id', 'stop_id', 'direction_id', 'stop_name', 'arrival_time', 'departure_time', 'stop_lat', 'stop_lon', 'stop_sequence']]
@@ -169,7 +169,7 @@ def main(target_route):
     realtime_vehicles['trip_id'] = realtime_vehicles['trip_id'].astype(str).astype(int)
 
     # Merge with trips to get direction_id
-    realtime_result = trips.merge(realtime_vehicles, on='trip_id', how='inner')
+    realtime_result = trips.merge(realtime_vehicles, on='trip_id', how='inner')[['trip_id', 'direction_id', 'vehicle_id', 'vehicle_latitude', 'vehicle_longitude', 'occupancy_status', 'now']]
 
     # Count unique trip_ids
     unique_trip_count = realtime_result["trip_id"].nunique()
@@ -245,6 +245,10 @@ def main(target_route):
                         'stop_name': 'static_stop_name'}, axis=1)
     temp['static_stop_sequence'] = temp['static_stop_sequence'].astype(int)
     otp_result = temp.copy()
+
+    # Count unique trip_ids
+    unique_trip_count = otp_result["trip_id"].nunique()
+    print(unique_trip_count)
 
     # Save to csv
     otp_result.reset_index(drop = True, inplace = True)
