@@ -12,6 +12,10 @@ import onException from './assets/onException.png';
 import ahead1 from './assets/ahead1.png';
 import ahead2 from './assets/ahead2.png';
 import spadina from './assets/501Spadina.png';
+import bunching1 from './assets/bunching1.png';
+import bunching2 from './assets/bunching2.png';
+import bunching3 from './assets/bunching3.png';
+import bunching4 from './assets/bunching4.png';
 
 function App() {
     console.log("gtfs-react-app started!")
@@ -65,7 +69,7 @@ function App() {
 
     return (
         <>
-        <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', lineHeight: '1.5em', margin: '3em'}}>
+        <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px', lineHeight: '1.5em', marginLeft: '3em', marginRight: '3em'}}>
             <h1>GTFS-rt Bus Report Card</h1>
             <h2>Select Bus Route</h2>
             <h3>Some suggested routes</h3>
@@ -103,10 +107,10 @@ function App() {
                 Riders often experience poor schedule adherence, 'ghost buses' that do not show up, or 'bus bunching' when 3 or 4 subsequently 
                 arrive late in quick succession. They may experience service disruptions when scheduled trips are cancelled with no viable alternatives.
                 Or if they are able to board a vehicle, they may be uncomortably packed in with too many other passengers. For these reasons, riders 
-                often turn to the subway, walking, cycling, or even rideshare services for a more reliable or comfortable transit mode. In this analysis, 
-                I aim to examine a few simple metrics that measure the effectiveness of TTC bus and streetcar routes. I hope that these observations 
-                can be used by riders and policymakers alike to study the strengths and shortcomings of transit routes in Toronto. <br/><br/>
-                The four chosen metrics are:
+                often turn to the subway, walking, cycling, or even rideshare services for a more reliable or comfortable transportation mode. In 
+                this analysis, I aim to examine a few simple metrics that measure the effectiveness of TTC bus and streetcar routes. I hope that these 
+                observations can be used by riders and policymakers alike to study the strengths and shortcomings of transit routes in Toronto. 
+                <br/><br/>The four chosen metrics are:
             </p>
             <ol>
                 <li><em>On Time Performance: </em> Whether the vehicles for a given route are
@@ -231,7 +235,7 @@ function App() {
                 <img style={{width: '600px'}} src={ahead2} alt=''/>
             </div>
             <p>However in the case that the prediction is on-time, we could still differentiate between whether the vehicle 
-                is approaching the stop or already past it. Rarely are vehicles ever exactly at the stop location!
+                is approaching the stop or already past it. Rarely are vehicles exactly at the stop location!
             </p>
             <div style={{textAlign:'center'}}>
                 <img style={{width: '600px'}} src={on1} alt=''/>
@@ -240,7 +244,7 @@ function App() {
             <p>Using a kd tree we are therefore able to maintain a max heap of the n nearest neighbours (in this case 2 closest stops).
                 In doing this we could in theory determine whether the vehicle is approaching the stop (nearest stops of n and n-1) 
                 or already past the stop (nearest stops of n and n+1). Unfortunately stops on a route are not equally spaced apart,
-                and because a vehicle is nearest to stop n and n+1, this does not necessarily mean its already passed stop n!
+                and because a vehicle is nearest to stop n and n+1, this does not necessarily mean its already past stop n:
             </p>
             <div style={{textAlign:'center'}}>
                 <img style={{width: '600px'}} src={onException} alt=''/>
@@ -258,7 +262,7 @@ function App() {
                 <br/><br/>Further exploration on this metric could be conducted by leveraging the historical context provided by 
                 this realtime data. For instance, the performance of the vehicles on a particular route could be stored over a period
                 of time (such as one year). Using the data collected over the course of this year, we could perform a frequency
-                analysis to determine if certain stops on a route are consistently ahead or behind schedule. Interesting questions
+                analysis to determine if vehicles at certain stops on a route are consistently ahead or behind schedule. Interesting questions
                 can be drawn from this data such as: the traffic patterns in that segment of the route, or the absence of passengers 
                 to pick up (if the vehicle is consistently passing the stop without stopping) to name a few.
             </p>
@@ -277,22 +281,63 @@ function App() {
                 buses on a route are regularly spaced. If there are enough vehicles, this would mean that there would be one bus for every 
                 stop on the route. Of course, this is rarely the case, and also rarely necessary, but this would imply that ideally the 
                 buses on a route should be travelling at a distance no lesser than the average distance between two stops. For this reason, 
-                I decided to make the bunching threshold the average distance between the stops of a route.
+                I decided to make the bunching threshold the average separation distance between the stops of a route.
             </p>
             <div class='container'>
                 <img src={spadina} alt=''/>
-                <div class="text">
-                    <p>In the figure on the left (Spadina Route 510), we can observe the relative equal spacing of hypothetical vehicles (green) compared to the 
-                        spacing of stops (red). In this instance, the equal spacing of stops means that there are no outliers. However if 
-                        there were  
+                <div class='nested-container'>
+                    <p>In the figure on the left (Spadina Route 510), we can observe the equal spacing of hypothetical vehicles (green) compared to the 
+                        spacing of stops (red). In this instance, the relatively equal spacing of stops means that there are no outliers. However if 
+                        there is an unequal spacing between stops of a route, this may result in buses to appear bunched between those stops 
+                        with an abnormally large separation distance:  
                     </p>
+                    <img src={bunching1} alt=''/>
+                    <img src={bunching2} alt=''/>
+                    <p>Furthermore, this approach would not work if there were also more buses on a route than there are stops. This would likely
+                        not occur because it could be assumed that the TTC would not field more buses than stops for any given direction of a 
+                        route. Nontheless, in this exceptional case, the increased frequency would be incorrectly flagged as bus bunching:
+                    </p>
+                    <img src={bunching3} alt=''/>
                 </div>
   
             </div>
-
             <h3>Implementation</h3>
+            <p>The bunching threshold was defined as the average stop separation distance. This value was calculated by iterating over all the 
+                stops on a route, summing the separation distances and dividing by the number of stops. Once the bunching threshold was found, 
+                it was used to compare all possible vehicle pairs to decide if they were bunched.<br/><br/>
+                Similar to the On Time Performance analysis, a kd tree was used to find bunched vehicle pairs. However instead of making a nearest 
+                neighbour (stop) query, a range query was made. Let <em>d</em> represent the bunching threshold distance.
+                <ol>
+                    <li>All vehicle locations are inserted into the tree</li>
+                    <li>Iterate through each vehicle location V<sub>x</sub> to find all (V<sub>y</sub>) vehicles that are bunched with 
+                        it, where (V<sub>y</sub>, V<sub>y</sub>) is a pair of bunched vehicles
+                    </li> 
+                    <li>For each V<sub>x</sub>, recurse through the tree and at each node V<sub>y</sub>, calculate the euclidean distance between 
+                    V<sub>x</sub> and V<sub>y</sub> </li>
+                    &emsp;&emsp;If the node V<sub>y</sub> is within distance <em>d</em> of V<sub>x</sub> then recurse down both subtrees of the node
+                    <br/>&emsp;&emsp;Else only recurse down the subtree which V<sub>x</sub> belongs to
+                </ol>
+            </p>
+            <p>Unlike the nearest neighbour query, the range query time complexity is O(&radic;n + m). The dimension split of the kd tree allows us 
+                to examine n<sup>1/2</sup> (half) of the locations while the m represents the locations that fall within the range <em>d</em>.
+            </p>
             <h3>Observations and Further Exploration</h3>
-            <p>Coming soon</p>
+            <p>This analysis has frequently revealed vehicles to bunch at the terminal stops/stations. In the case of the 510 Spadina, the 
+                terminal stations of Spadina-Bloor and Exhibition Place are typical locations where buses tend to congregate. This is 
+                possibly due to the nature of terminal stations, where passengers may be slow to disembark or board, or perhaps when 
+                bus operators change shifts or take breaks. Due to the strict nature of a terminal station (vehicles must stop there 
+                to facilitate transfers), this also leads to a back-up where buses are not able to bypass the station and continue the route. 
+                This is actually a strategy bus operators might use to pass buses that already arrived at a stop (provided no passengers 
+                request to get off at that stop). Unfortunately, this sort of bus bunching at terminal stations can only be addressed through
+                optimization of station transfers, station layouts, crowd control, or any number of other solutions...
+                <br/><br/>On the other hand, bus bunching that occurs at non-terminal stops may offer insight into traffic conditions near those
+                bunched buses, or perhaps it may suggest that changes need to be made in stop configurations. For instance, if buses of a route 
+                are consistently bunching near stop <em>n</em>, this may imply a heavy demand in this location, and potentially support the 
+                case for adding a new stop <em>m</em> near it.   
+            </p>
+            <div style={{textAlign:'center'}}>
+                <img style={{width: '600px'}} src={bunching4} alt=''/>
+            </div>
             <h2>Service Guarantee</h2>
             <h3>Exposition and Methodology</h3>
             <h3>Implementation</h3>

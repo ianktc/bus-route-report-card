@@ -42,14 +42,56 @@ body {
 
 .container {
   display: flex;
-  align-items: flex-start; /* Align items at the top */
+  flex-direction: row; /* Main container: left-right alignment */
+  align-items: stretch; /* Align items to the top */
+  gap: 20px; /* Space between left and right sections */
 }
+
 .container img {
+  display: flex;
   max-width: 150px; /* Adjust as needed */
   margin-right: 20px;
 }
-.container .text {
-  flex: 1;
+
+.nested-container {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  justify-content: space-between; /* Equal vertical spacing */
+  align-items: center; /* Center items horizontally */
+  height: inherit; /* Adjust height to control vertical spacing */
+  flex: 1; /* Allow the container to grow if needed */
+}
+
+.nested-container img {
+  max-width: 60%; /* Make the images responsive */
+  height: auto;
+  margin: 16px;
+  flex-direction: column;
+}
+
+/* Add some basic styling */
+h2 {
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+}
+
+/* Arrow style */
+.arrow {
+  margin-left: 10px;
+  transition: transform 0.3s ease;
+}
+
+/* Down arrow (default) */
+.arrow.down::before {
+  content: '\25BF'; /* Downward arrow */
+  font-size: 20px;
+}
+
+/* Up arrow (when section is expanded) */
+.arrow.up::before {
+  content: '\25B5'; /* Upward arrow */
+  font-size: 20px;
 }
 
 @keyframes App-logo-spin {
