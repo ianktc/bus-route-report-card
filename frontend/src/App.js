@@ -345,7 +345,7 @@ function App() {
             {bbAnalysisData.length > 0 ? (
                 <div>
                     {bbAnalysisData.map((line, index) => (
-                        <p key={index}>{line}</p>
+                        <p key={index}><em>{line}</em></p>
                     ))}
                 </div>
             ) : (
@@ -426,7 +426,7 @@ function App() {
             {sgAnalysisData.length > 0 ? (
                 <div>
                     {sgAnalysisData.map((line, index) => (
-                        <p key={index}>{line}</p>
+                        <p key={index}><em>{line}</em></p>
                     ))}
                 </div>
             ) : (
@@ -443,20 +443,62 @@ function App() {
                 <br/>&emsp; - all static trips that are not run at all are represented in yellow alone
                 <br/>&emsp; - all realtime trips that do not have a corresponding scheduled static trip 
                 (therefore unscheduled/added) are represented in blue alone
-
             </p>
+            <p><strong>Three particular results are worth highlighting:</strong></p>
+            <ol>
+                <li><strong><em>Percentage of static trips represented by scheduled realtime trips (in pink).</em></strong> This refers
+                    to how many scheduled trips the agency delivers on.
+                </li>
+                <li><strong><em>Percentage of all realtime trips represented by additional (unscheduled) realtime 
+                    trips (in blue).</em></strong> This refers to how many additional trips the agency is delivering without 
+                    previously notifying riders through a schedule.
+                </li>
+                <li><strong><em>Percentage of static trips represented by both scheduled and unscheduled realtime trips
+                    (in pink + blue).</em></strong> This refers to the ratio of total realtime trips to the number of scheduled
+                    trips (irrespective of whether they have an existing correlated scheduled trip)
+                </li>
+            </ol>
             <div style={{textAlign:'center'}}>
                 <img style={{width: '350px'}} src={serviceGuarantee} alt=''/>
             </div>
             <h3>Implementation</h3>
-            <p>All results are simply represented in terms of percentages.</p>
+            <p>All results are simply represented in terms of percentages. Where <em>num_static_realtime_trips</em>
+            represents the realtime trips with correlating scheduled trips:</p>
+            <ol>
+                <li><strong><em>Percentage of static trips represented by scheduled realtime trips (in pink).
+                    </em></strong><br/>&emsp;num_static_realtime_trips / num_static_trips
+                </li>
+                <li><strong><em>Percentage of all realtime trips represented by additional (unscheduled) realtime 
+                    trips (in blue).</em></strong> 
+                    <br/>&emsp;(num_realtime_trips - num_static_realtime_trips) / num_realtime_trips
+                </li>
+                <li><strong><em>Percentage of static trips represented by both scheduled and unscheduled realtime trips
+                    (in pink + blue).</em></strong><br/>&emsp;num_realtime_trips / num_static_trips
+                </li>
+            </ol>
             <h3>Observations and Further Exploration</h3>
-            <p>Coming soon</p>
+            <p>This analysis has revealed that routes will frequently perform below the declared level of service. 
+                All realtime trips for any given route are commonly only meeting ~50% of the scheduled trips. If 
+                the scheduled trips can be viewed as a sort of 'guarantee' of service, then TTC routes are commonly
+                underperforming. However, the scheduled trips cannot reaonsably be considered as guarantees, and 
+                furthermore there exist no explicit mentions of SLAs, or Performance/Reliability Standards for 
+                other large transit agencies around the world. 
+            </p>
+            <p>It is worth considering the idea of a regulating body that ensures a transit agency meets a level 
+                of service. Just as government contractors are obligated to meet certain contractual agreements, it
+                would serve riders well to have an entity that holds transit agencies accountable. Having said this, 
+                such an organization or agreement would likely be considered too severe, and maybe result in the agency
+                proposing low service levels such that they don't violate the agreement. Interestingly, there are 
+                instances of other transit <a href='https://www.bbc.com/news/world-asia-42009839'>agencies</a> around the 
+                world offering some degree of service guarantee. In the case of the TTC, it may require years of 
+                accountability initiatives, increased funding and overhaul in general before it can begin to meet service
+                guarantees. 
+            </p>
             <h2>Vehicle Capacity</h2>
             {voAnalysisData.length > 0 ? (
                 <div>
                     {voAnalysisData.map((line, index) => (
-                        <p key={index}>{line}</p>
+                        <p key={index}><em>{line}</em></p>
                     ))}
                 </div>
             ) : (

@@ -280,8 +280,8 @@ def main(target_route):
     # print(rt_trips)
     result = realtime_result.groupby('direction_id').apply(lambda group: kd_tree_range_query(group, threshold_degrees), include_groups=False)
 
-    bbResult1 = list(result.loc[0])
-    bbResult2 = list(result.loc[1])
+    bbResult1 = 'Bunched bus pairs in direction 0: ' + str(list(result.loc[0]))
+    bbResult2 = 'Bunched bus pairs in direction 1: ' + str(list(result.loc[1]))
     bbResult3 = '%s bunched bus pairs out of %s total buses running on route %s' %(len(result.loc[0]) + len(result.loc[1]), len(realtime_result), target_route)
     resultList = list((bbResult1, bbResult2, bbResult3))
 
@@ -303,7 +303,7 @@ def main(target_route):
 
     timestamp = resulting_timestamp.time()
     realtime_result['occupancy_status'] = realtime_result['occupancy_status'].astype(str).astype(int)
-    average_vehicle_occupancy = realtime_result['occupancy_status'].mean()
+    average_vehicle_occupancy = round(realtime_result['occupancy_status'].mean(),2)
 
     time_7am = time(7, 0)
     time_10am = time(10, 0)
@@ -340,7 +340,7 @@ def main(target_route):
     # print(num_static_realtime_trips)
 
     sgResult1 = 'Percentage of static trips represented by scheduled realtime trips is {:.2f}%'.format(num_static_realtime_trips / num_static_trips * 100)
-    sgResult2 = 'Additional (unscheduled) realtime trips account for {:.2f}% of the realtime trips'.format((num_realtime_trips - num_static_realtime_trips) / num_realtime_trips * 100)
+    sgResult2 = 'Percentage of all realtime trips represented by additional (unscheduled) realtime trips is {:.2f}%'.format((num_realtime_trips - num_static_realtime_trips) / num_realtime_trips * 100)
     sgResult3 = 'Percentage of static trips represented by both scheduled and unscheduled realtime trips is {:.2f}%'.format(num_realtime_trips / num_static_trips * 100)
     resultList = list((sgResult1, sgResult2, sgResult3))
 

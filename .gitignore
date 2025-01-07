@@ -8,10 +8,13 @@
 # testing
 /coverage
 
+# data
+/backend/data_in/*
+
 # production
 /build
 /backend/data_out/*
-!/backend/data_out/.gitkeep
+!/backend/data_out/
 
 # misc
 .DS_Store
